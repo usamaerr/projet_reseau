@@ -3,11 +3,7 @@ Description du Projet
 
 
 
-Liste des Tâches
-
-  Comprendre le Projet Se familiariser avec les exigences et la structure du projet.
-
-  Debugguer le Projet Python Corriger les bugs présents dans le code Python existant et importer les données nécessaires.
+  Formuler l'evenement qui contient les infos sur chaque bob et nourriture
 
   Communication Réseau Python -> C Implémenter une connexion réseau permettant au programme Python d'envoyer des données vers une application écrite en C.
 
