@@ -14,7 +14,7 @@ int main() {
     return 0;
     }*/
 
-
+/*code de test*/
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -36,6 +36,7 @@ int main() {
         perror("Erreur de création du socket");
         exit(EXIT_FAILURE);
     }
+
 
     
 }
