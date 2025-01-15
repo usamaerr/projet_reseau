@@ -1,4 +1,4 @@
-#include <stdio.h>
+/*#include <stdio.h>
 #include <stdlib.h>
 
 int main() {
@@ -12,4 +12,33 @@ int main() {
     }
 
     return 0;
+    }*/
+
+
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include <arpa/inet.h>
+#include <unistd.h>
+
+#define PORT 12345       // Port d'écoute
+#define BUFFER_SIZE 1024 // Taille maximale du buffer
+
+int main() {
+    int sockfd;
+    char buffer[BUFFER_SIZE];
+    struct sockaddr_in servaddr, cliaddr;
+    socklen_t len;
+
+    // Créer un socket UDP
+    sockfd = socket(AF_INET, SOCK_DGRAM, 0);
+    if (sockfd < 0) {
+        perror("Erreur de création du socket");
+        exit(EXIT_FAILURE);
+    }
+
+    
 }
+
+
+
