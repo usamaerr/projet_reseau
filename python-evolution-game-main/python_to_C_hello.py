@@ -1,5 +1,5 @@
 #***************** Test pour envoyer en ASCII et lire flux entrant ****************
-
+'''
 import socket
 import select
 
@@ -50,7 +50,7 @@ if __name__ == "__main__":
 
 
 
-
+'''
 
 
 
@@ -105,7 +105,7 @@ if __name__ == "__main__":
 
 #**************************  Test pour envoyer données en ASCII ****************
 
-'''
+
 import socket
 
 def send_ascii_file(filename, target_ip, target_port):
@@ -132,12 +132,12 @@ if __name__ == "__main__":
     send_ascii_file(
         filename="distant.txt",       # Nom du fichier ASCII
         target_ip="127.0.0.1",  # Adresse IP localhost
-        target_port=12345          # Port de destination
+        target_port=5001          # Port de destination
     )
 
 
 
-'''
+
 
 
 
