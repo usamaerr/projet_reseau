@@ -1,3 +1,64 @@
+#***************** Test pour envoyer en ASCII et lire flux entrant ****************
+
+import socket
+import select
+
+def main():
+    # Configurations
+    send_ip = "127.0.0.1"  # IP de la machine cible pour l'envoi - localhost
+    send_port = 12345         # Port pour envoyer des données au processus C
+    listen_port = 12346       # Port où Python écoutera les données du processus C
+    filename = "distant.txt"     # Fichier ASCII à envoyer
+
+    # Créer le socket pour envoyer
+    send_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+
+    # Créer le socket pour écouter
+    listen_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    listen_socket.bind(("0.0.0.0", listen_port))  # Écouter sur toutes les interfaces
+
+    print(f"Python écoute sur le port {listen_port} pour les messages du processus C...")
+
+    # Charger les données ASCII à envoyer
+    try:
+        with open(filename, 'r') as file:
+            ascii_data = file.read()
+    except Exception as e:
+        print(f"Erreur lors de la lecture du fichier {filename} : {e}")
+        return
+
+    # Boucle principale
+    while True:
+        # Utiliser select() pour surveiller les sockets
+        read_sockets, _, _ = select.select([listen_socket], [], [], 1)
+
+        # Si le socket d'écoute est prêt, lire les données reçues
+        for sock in read_sockets:
+            if sock == listen_socket:
+                data, addr = listen_socket.recvfrom(65536)
+                print(f"Message reçu de {addr} :\n{data.decode('utf-8')}")
+
+        # Envoyer les données ASCII si nécessaire
+        # Par exemple, on peut envoyer à intervalles réguliers ou sur un événement
+        send_socket.sendto(ascii_data.encode('utf-8'), (send_ip, send_port))
+        print(f"Fichier {filename} envoyé à {send_ip}:{send_port} :\n{ascii_data}")
+        break  # Supprimez le break pour maintenir l'envoi continu si nécessaire
+
+if __name__ == "__main__":
+    main()
+
+
+
+
+
+
+
+
+
+
+
+
+
 #****************   Test sur sortie standard  **********
 '''
 import sys
@@ -81,51 +142,7 @@ if __name__ == "__main__":
 
 
 
-#***************** Test pour envoyer en ASCII et lire flux entrant ****************
 
-import socket
-import select
 
-def main():
-    # Configurations
-    send_ip = "127.0.0.1"  # IP de la machine cible pour l'envoi - localhost
-    send_port = 12345         # Port pour envoyer des données au processus C
-    listen_port = 12346       # Port où Python écoutera les données du processus C
-    filename = "distant.txt"     # Fichier ASCII à envoyer
 
-    # Créer le socket pour envoyer
-    send_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
-    # Créer le socket pour écouter
-    listen_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    listen_socket.bind(("0.0.0.0", listen_port))  # Écouter sur toutes les interfaces
-
-    print(f"Python écoute sur le port {listen_port} pour les messages du processus C...")
-
-    # Charger les données ASCII à envoyer
-    try:
-        with open(filename, 'r') as file:
-            ascii_data = file.read()
-    except Exception as e:
-        print(f"Erreur lors de la lecture du fichier {filename} : {e}")
-        return
-
-    # Boucle principale
-    while True:
-        # Utiliser select() pour surveiller les sockets
-        read_sockets, _, _ = select.select([listen_socket], [], [], 1)
-
-        # Si le socket d'écoute est prêt, lire les données reçues
-        for sock in read_sockets:
-            if sock == listen_socket:
-                data, addr = listen_socket.recvfrom(65536)
-                print(f"Message reçu de {addr} :\n{data.decode('utf-8')}")
-
-        # Envoyer les données ASCII si nécessaire
-        # Par exemple, on peut envoyer à intervalles réguliers ou sur un événement
-        send_socket.sendto(ascii_data.encode('utf-8'), (send_ip, send_port))
-        print(f"Fichier {filename} envoyé à {send_ip}:{send_port} :\n{ascii_data}")
-        break  # Supprimez le break pour maintenir l'envoi continu si nécessaire
-
-if __name__ == "__main__":
-    main()
