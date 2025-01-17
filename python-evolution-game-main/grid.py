@@ -2,6 +2,7 @@ import random
 
 from bob import Bob
 from collections import defaultdict
+from paquet import Paquet
 
 
 class Grid:
@@ -218,8 +219,11 @@ class Grid:
             self.delete_bob(x, y, id)
             if (new_x, new_y) in self.dict_bob:
                 self.dict_bob[(new_x, new_y)].append(random_bob)
+                Paquet.export_to_json("grid_data.json", self.dict_bob, self.dict_food)
+
             else:
                 self.dict_bob[(new_x, new_y)] = [random_bob]
+                Paquet.export_to_json("grid_data.json", self.dict_bob, self.dict_food)
         else:
             random_bob.set_energy(random_bob.get_energy()-0.5) # ajout de cette ligne pour enlever au bob 0.5 d'energie quand ils bougent pas 
 
