@@ -1,3 +1,14 @@
+/**
+ * @file main.c
+ * @brief A simple UDP broadcast and receive program.
+ *
+ * This program allows the user to send and receive messages over UDP using broadcast.
+ * It sets up a socket for receiving messages on a specified port and another for sending
+ * messages to a broadcast address on a different port.
+ *
+ * The socket is set to non-blocking mode to allow simultaneous sending and receiving of messages.
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -7,118 +18,96 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 
-// Function to set a socket to non-blocking mode
+/**
+ * @brief Set a socket to non-blocking mode.
+ *
+ * @param sock The socket file descriptor.
+ */
 void set_nonblocking(int sock) {
-    int flags = fcntl(sock, F_GETFL, 0);
-    fcntl(sock, F_SETFL, flags | O_NONBLOCK);
+    int flags = fcntl(sock, F_GETFL, 0); ///< Get the current socket flags.
+    fcntl(sock, F_SETFL, flags | O_NONBLOCK); ///< Set the socket to non-blocking mode.
 }
 
 int main() {
-    int port = 2222;
-    char buffer[1024];
-    struct sockaddr_in addr, broadcast_addr;
-    socklen_t addr_len = sizeof(struct sockaddr_in);
+    int send_port, recv_port; ///< Ports for sending and receiving messages.
+    char buffer[1024]; ///< Buffer for storing messages.
+    struct sockaddr_in recv_addr, broadcast_addr, sender_addr; ///< Socket addresses for receiving, broadcasting, and sender.
+    socklen_t addr_len = sizeof(struct sockaddr_in); ///< Length of the socket address structure.
 
-    // Create the UDP socket
-    int sock = socket(AF_INET, SOCK_DGRAM, 0);
+    // Input ports for sending and receiving
+    printf("Enter the port to use for receiving messages: ");
+    scanf("%d", &recv_port); ///< Get the receiving port from the user.
+    printf("Enter the port to use for sending messages: ");
+    scanf("%d", &send_port); ///< Get the sending port from the user.
+
+    // Create the socket
+    int sock = socket(AF_INET, SOCK_DGRAM, 0); ///< Create a UDP socket.
     if (sock < 0) {
-        perror("Socket creation failed");
-        exit(EXIT_FAILURE);
+        perror("Socket creation failed"); ///< Print error message if socket creation fails.
+        exit(EXIT_FAILURE); ///< Exit the program with failure status.
     }
 
-    // Allow multiple sockets to use the same port
-    int reuse = 1;
-    if (setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof(reuse)) < 0) {
-        perror("Failed to set SO_REUSEADDR");
-        close(sock);
-        exit(EXIT_FAILURE);
-    }
-
-    // Set the socket to allow broadcasting
+    // Enable broadcast on the socket
     int broadcast_enable = 1;
     if (setsockopt(sock, SOL_SOCKET, SO_BROADCAST, &broadcast_enable, sizeof(broadcast_enable)) < 0) {
-        perror("Failed to enable broadcast");
-        close(sock);
-        exit(EXIT_FAILURE);
+        perror("Failed to enable broadcast"); ///< Print error message if enabling broadcast fails.
+        close(sock); ///< Close the socket.
+        exit(EXIT_FAILURE); ///< Exit the program with failure status.
     }
 
-    // Bind the socket to the specified port
-    memset(&addr, 0, sizeof(addr));
-    addr.sin_family = AF_INET;
-    addr.sin_port = htons(port);
-    addr.sin_addr.s_addr = INADDR_ANY; // Listen on all interfaces
+    // Bind the socket to the receiving port
+    memset(&recv_addr, 0, sizeof(recv_addr)); ///< Clear the receiving address structure.
+    recv_addr.sin_family = AF_INET; ///< Set the address family to AF_INET.
+    recv_addr.sin_port = htons(recv_port); ///< Set the receiving port.
+    recv_addr.sin_addr.s_addr = INADDR_ANY; ///< Accept messages from any address.
 
-    if (bind(sock, (struct sockaddr *)&addr, sizeof(addr)) < 0) {
-        perror("Binding failed");
-        close(sock);
-        exit(EXIT_FAILURE);
+    if (bind(sock, (struct sockaddr *)&recv_addr, sizeof(recv_addr)) < 0) {
+        perror("Binding failed"); ///< Print error message if binding fails.
+        close(sock); ///< Close the socket.
+        exit(EXIT_FAILURE); ///< Exit the program with failure status.
     }
 
-    // Configure the broadcast address
-    memset(&broadcast_addr, 0, sizeof(broadcast_addr));
-    broadcast_addr.sin_family = AF_INET;
-    broadcast_addr.sin_port = htons(port);
-    broadcast_addr.sin_addr.s_addr = inet_addr("255.255.255.255");
+    // Configure the broadcast address for sending
+    memset(&broadcast_addr, 0, sizeof(broadcast_addr)); ///< Clear the broadcast address structure.
+    broadcast_addr.sin_family = AF_INET; ///< Set the address family to AF_INET.
+    broadcast_addr.sin_port = htons(send_port); ///< Set the sending port.
+    broadcast_addr.sin_addr.s_addr = inet_addr("255.255.255.255"); ///< Set the broadcast address.
 
-    // Set the socket to non-blocking mode
-    set_nonblocking(sock);
+    set_nonblocking(sock); ///< Set the socket to non-blocking mode.
 
-    printf("Game started! Listening for messages and ready to send.\n");
+    printf("Game started! Listening for messages on port %d and broadcasting to port %d.\n", recv_port, send_port);
 
     while (1) {
         // Non-blocking receive
-        ssize_t recv_len = recvfrom(sock, buffer, sizeof(buffer) - 1, 0, (struct sockaddr *)&addr, &addr_len);
+        ssize_t recv_len = recvfrom(sock, buffer, sizeof(buffer) - 1, 0, (struct sockaddr *)&sender_addr, &addr_len); ///< Receive a message.
         if (recv_len > 0) {
-            /**
-             * @brief Null-terminate the received data and print the received message.
-             * 
-             * @details This section of code ensures that the received data is properly
-             * null-terminated to avoid buffer overflow issues and then prints the message
-             * received from the network.
-             */
+            buffer[recv_len] = '\0'; ///< Null-terminate the received message.
 
-             /**
-             * @brief Prompt the user for input and send it as a broadcast message.
-             * 
-             * @details This section of code prompts the user to enter their move, reads
-             * the input using fgets, removes the newline character, and sends the input
-             * as a broadcast message to the specified address. If the message fails to
-             * send, an error message is printed. Otherwise, it confirms that the message
-             * was sent successfully.
-             */
-
-             /**
-             * @brief Sleep for 100 milliseconds to avoid busy-waiting.
-             * 
-             * @details This section of code introduces a delay of 100 milliseconds to
-             * prevent the program from continuously running in a busy-wait loop, which
-             * can consume unnecessary CPU resources.
-             */
-            buffer[recv_len] = '\0'; // Null-terminate the received data
-            printf("\nMessage received: %s\n", buffer);
+            // Filter out messages sent by itself
+            if (ntohs(sender_addr.sin_port) != recv_port) {
+                printf("\nMessage received: %s\n", buffer); ///< Print the received message.
+            }
         }
 
         // Prompt the user for input
         printf("Your move: ");
-        fflush(stdout);
+        fflush(stdout); ///< Flush the output buffer.
 
-        // Use fgets to read user input
         if (fgets(buffer, sizeof(buffer), stdin) != NULL) {
-            buffer[strcspn(buffer, "\n")] = '\0'; // Remove the newline character
+            buffer[strcspn(buffer, "\n")] = '\0'; ///< Remove the newline character.
 
             // Send the input as a broadcast message
-            ssize_t send_len = sendto(sock, buffer, strlen(buffer), 0, (struct sockaddr *)&broadcast_addr, addr_len);
+            ssize_t send_len = sendto(sock, buffer, strlen(buffer), 0, (struct sockaddr *)&broadcast_addr, addr_len); ///< Send the message.
             if (send_len < 0) {
-                perror("Failed to send message");
+                perror("Failed to send message"); ///< Print error message if sending fails.
             } else {
-                printf("Message sent: %s\n", buffer);
+                printf("Message broadcasted: %s\n", buffer); ///< Print the broadcasted message.
             }
         }
 
-        usleep(100000); // Avoid busy-waiting by sleeping for 100ms
+        usleep(100000); ///< Avoid busy-waiting by sleeping for 100 milliseconds.
     }
 
-    // Close the socket
-    close(sock);
-    return 0;
+    close(sock); ///< Close the socket.
+    return 0; ///< Return success status.
 }
