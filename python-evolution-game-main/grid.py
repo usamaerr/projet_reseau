@@ -1,7 +1,9 @@
 import random
-
-from bob import Bob
 from collections import defaultdict
+from datetime import datetime
+
+import globals
+from bob import Bob
 from paquet import Paquet
 
 
@@ -35,6 +37,7 @@ class Grid:
 
     def create_all_bob(self):
         # Création de tous les bobs initiaux dans des positions aléatoires
+        
         for _ in range(self.nombre_bob_spawn):
             while True:
                 x = random.randint(0, self.N-1)
@@ -45,9 +48,13 @@ class Grid:
                     break
         print("Nombre de bob créé dans le dico :", len(self.dict_bob.keys()))
 
-    def create_bob(self, x, y):
+    def create_bob(self, x, y ):
         # Création d'un bob à la position spécifiée
-        bob = Bob(len(self.dict_bob), x, y)
+        now = datetime.now()
+        min = now.min
+        sec = now.second
+        player_id = globals.player_name + str(min) + str(sec)
+        bob = Bob(len(self.dict_bob), x, y , player_id )
         bob.id_bob = self.create_id_bob() # ajout de cette ligne pour creer des id aux bobs
         self.dict_bob[(x, y)] = [bob]
 
@@ -167,13 +174,17 @@ class Grid:
         return mut_speed
 
     def parthenogenesis(self,x,y): 
+        now = datetime.now()
+        min = now.min
+        sec = now.second
+        player_id = globals.player_name + str(min) + str(sec)
         # Fonction pour permettre la parthénogenèse (reproduction asexuée) d'un bob à la position spécifiée avec ajout de x,y pour éviter de refaire un parcours de dico a chaque fois 
         if self.dict_bob[(x, y)]:
             #verifier pour chaque bob dans la liste si l'energie = 200 et après en créer un new bob 
             for bob in self.dict_bob[(x, y)]:
                 if(bob.energy >= self.bob_energy_spawn*2):
                     print("Bob partheno : ",bob.id_bob) 
-                    newBob = Bob(self.create_id_bob(),x,y,bob.get_energy()//4) # ajout de create id_bob
+                    newBob = Bob(self.create_id_bob(),x,y,player_id ,bob.get_energy()//4) # ajout de create id_bob
                     newBob.set_speed(self.mutation_speed(bob.get_speed())) # ajout de la mutation
                     newBob.set_mass(self.mutation_mass(bob.get_mass()))    #ajout de mutation de masse
                     newBob.set_maman(bob.id_bob)
@@ -219,13 +230,13 @@ class Grid:
             self.delete_bob(x, y, id)
             if (new_x, new_y) in self.dict_bob:
                 self.dict_bob[(new_x, new_y)].append(random_bob)
-                Paquet.export_to_json("grid_data.json", self.dict_bob, self.dict_food)
-
+                Paquet.export_to_ascii("data.txt", self.dict_bob, self.dict_food)
             else:
                 self.dict_bob[(new_x, new_y)] = [random_bob]
-                Paquet.export_to_json("grid_data.json", self.dict_bob, self.dict_food)
+                Paquet.export_to_ascii("data.txt", self.dict_bob, self.dict_food)
         else:
-            random_bob.set_energy(random_bob.get_energy()-0.5) # ajout de cette ligne pour enlever au bob 0.5 d'energie quand ils bougent pas 
+            random_bob.set_energy(random_bob.get_energy()-0.5) # ajout de cette ligne pour enlever au bob 0.5 d'energie quand ils bougent pas
+            Paquet.export_to_ascii("data.txt", self.dict_bob, self.dict_food) 
 
         if len(self.dict_bob[(x,y)]) == 0:
             del(self.dict_bob[(x,y)])

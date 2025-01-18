@@ -1,6 +1,7 @@
 class Bob:
-    def __init__(self, id_bob, x, y, e_spawn=100, speed=1,mass=1, maman=0):
+    def __init__(self, id_bob, x, y,id_player, e_spawn=100, speed=1,mass=1, maman=0  ):
         self.id_bob = id_bob
+        self.id_player = id_player
         self.energy = e_spawn
         self.e_spawn = e_spawn
         self.maman = maman

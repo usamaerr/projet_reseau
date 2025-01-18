@@ -5,7 +5,6 @@ from pygame.locals import *
 def start_game(start_from_loading_flag = 0):
 
     # pygame.init()
-    # from aff_iso import configuration, draw_full_grid_v2, draw_initial_grid_v2
     import affichage_2_5D_isometric as aff_iso
     import sauvegarde as sauv
     
@@ -52,26 +51,16 @@ def start_game(start_from_loading_flag = 0):
                             pygame.event.clear()
                             break
 
-                # if grid_offset_x < 0:
-                #     grid_offset_x = 0
-                # if grid_offset_y < 0:
-                #     grid_offset_y = 0
-                # if grid_offset_x > grid_height - screen_height + 128: #valeurs à modifier pour que ça rende bien
-                #     grid_offset_x = grid_height - screen_height + 128
-                # if grid_offset_y > grid_width - screen_width:
-                #     grid_offset_y = grid_width - screen_width
+           
         
         if tick_graphic >= aff_iso.configuration.config_affichage.nombredefps / aff_iso.configuration.config_affichage.vitesse_actualisation:
             aff_iso.configuration.config_grid.action_bob_speed()
             tick_graphic = 0
-        #print("Indice de mutation : ", aff_iso.configuration.config_grid.indice_mut)
-        # draw_full_grid(update_map (grid))
-        
+       
         aff_iso.draw_full_grid_v2(aff_iso.configuration.config_grid)
         aff_iso.draw_visible_grid (aff_iso.grid_offset_x, aff_iso.grid_offset_y)
         aff_iso.displaysurf.blit(aff_iso.screen_surface, (0, 0))
         aff_iso.displaysurf.blit(aff_iso.overlay_image,(0,0))
-        # aff_iso.displaysurf.blit(aff_iso.overlay_image_red,(aff_iso.configuration.config_affichage.screen_width-60,0))
         aff_iso.displaysurf.blit(aff_iso.overlay_image_red,(aff_iso.displaysurf.get_width()-580,0))
         #--------------------------------------AFFICHAGE OVERLAY---------------------------------------------
        
