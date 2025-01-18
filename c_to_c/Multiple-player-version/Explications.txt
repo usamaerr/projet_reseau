@@ -1,0 +1,9 @@
+!!!!!!!! C_To_C  MultiPlayer !!!!!!!!!
+
+This code is tested for 10 terminal that are able to exchange messages using the udp protocol 
+If  you are  using ubuntu wsl  please  install tmux for multiple terminal display
+sudo apt install tmux
+Then execute this file:
+- ./terminal-wsl.sh  (Wsl  does not support )
+otherwise is u are using  ubuntu execute this file:
+- ./terminal.sh
