@@ -1,6 +1,8 @@
 import pygame
 import pygame_menu
 from pygame.locals import *
+
+import globals
 from affichage_2_5D_isometric import get_config, get_config_from_settings
 from game import start_game
 
@@ -10,8 +12,35 @@ window_size = (900, 700)
 themes = [('Default', 0), ('Christmas', 1), ('Halloween', 2), ('Pirate', 3), ('Space', 4)]
 
 ################# MENU FUNCTIONS ###################
+def ask_player_name():
+    def set_player_name(value):
+        globals.player_name = value  # Mettre à jour le nom saisi
+
+    def confirm_and_start():
+        if globals.player_name.strip() == "":  # Vérifier si un nom a été saisi
+            print("Veuillez saisir un nom valide.")
+        else:
+            print(f"Nom du joueur : {globals.player_name}")
+            from affichage_2_5D_isometric import start_from_loading_flag
+            start_game(start_from_loading_flag)
+
+    # Créer un sous-menu pour saisir le nom
+    name_menu = pygame_menu.Menu(
+        'Enter Your Name', window_size[0], window_size[1], theme=pygame_menu.themes.THEME_GREEN
+    )
+    name_menu.add.text_input(
+        'Name: ', 
+        default='', 
+        onchange=set_player_name, 
+        textinput_id="player_name_input"
+    )
+    name_menu.add.button('Confirm', confirm_and_start)  # Appeler la validation
+    name_menu.add.button('Cancel', pygame_menu.events.BACK)  # Revenir au menu principal
+    name_menu.mainloop(surface)
+
 def start_the_game():
     from affichage_2_5D_isometric import start_from_loading_flag
+    ask_player_name()
     start_game(start_from_loading_flag)
 
 def load_game():
@@ -52,6 +81,7 @@ def start_menu():
     global error_nb_bob_label
     global error_load_file
     global food_energy_slider
+    global player_name 
 
     surface = pygame.display.set_mode(window_size, RESIZABLE)
     pygame.display.set_caption('Bob: A Game of Life')

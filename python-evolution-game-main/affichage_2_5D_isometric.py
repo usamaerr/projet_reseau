@@ -1,11 +1,14 @@
+from random import *
+from time import *
+
 import pygame
 from pygame.locals import *
+
+import globals
 from grid import Grid
-from time import *
-from random import *
-from sauvegarde import open_config, save_default, save_config, start_from_loading_flag
-
-
+from paquet import Paquet
+from sauvegarde import (open_config, save_config, save_default,
+                        start_from_loading_flag)
 
 configuration = save_default
 def get_config():
@@ -99,16 +102,6 @@ def redefinition_surface():
 
     grid_offset_y = ( configuration.config_affichage.screen_width -  grid_width ) // 2
 
-    
-
-
-
-
-
-
-
-
-
 theme = "Default"
 def set_theme(value = "Default"):
     global theme
@@ -154,7 +147,7 @@ TILEHEIGHT_HALF = TILEHEIGHT /2
 TILEWIDTH_HALF = TILEWIDTH /2
 
 
-def draw_initial_grid_v2(mygrid:Grid): #tentative de modification/optimisation des fonctions de créations pour ne plus passer par les fonction create_map()
+def draw_initial_grid_v2(mygrid:Grid ): #tentative de modification/optimisation des fonctions de créations pour ne plus passer par les fonction create_map()
     for n in range(0,mygrid.N):   #for every row of the map...
         for m in range(0, mygrid.M):
                 tileImage = grass
@@ -167,42 +160,75 @@ def draw_initial_grid_v2(mygrid:Grid): #tentative de modification/optimisation d
                 grid_surface.blit(tileImage, (centered_x, centered_y)) #display the actual tile
 
           
-def draw_full_grid_v2(mygrid:Grid):
+def draw_full_grid_v2(mygrid: Grid , port_receiver ):
     global bobsprite
     global grass
     global food
-    for n in range(0,mygrid.N):   #for every row of the map...
+
+    # Fonction pour lire les données du fichier distant.txt
+    bobs_distant,  player_name = Paquet.lire_distant_data(port_receiver)
+    
+
+    # Dessiner la grille
+    for n in range(0, mygrid.N):   # Pour chaque ligne de la carte...
         for m in range(0, mygrid.M):
-                cart_x = n * TILEWIDTH_HALF
-                cart_y = m * TILEHEIGHT_HALF  
-                iso_x = (cart_x - cart_y) 
-                iso_y = (cart_x + cart_y)/2 
-                centered_x = grid_surface.get_rect().centerx + iso_x
-                centered_y = grid_surface.get_rect().centery/2 + iso_y
-                
-            
+            cart_x = n * TILEWIDTH_HALF
+            cart_y = m * TILEHEIGHT_HALF
+            iso_x = (cart_x - cart_y)
+            iso_y = (cart_x + cart_y) / 2
+            centered_x = grid_surface.get_rect().centerx + iso_x
+            centered_y = grid_surface.get_rect().centery / 2 + iso_y
+            font = pygame.font.Font(None, 24)
 
-                if mygrid.dict_bob.get((n,m)) is None and mygrid.dict_food.get((n,m)) is None: #cas où il n'y a ni food ni bob sur la case.
-                    tileImage = grass
-                    centered_x1 = grid_surface.get_rect().centerx + iso_x
-                    centered_y1 = grid_surface.get_rect().centery / 2 + iso_y
-                    grid_surface.blit(tileImage, (centered_x1, centered_y1))
+            if mygrid.dict_bob.get((n, m)) is None and mygrid.dict_food.get((n, m)) is None:
+                # Case vide, afficher l'herbe
+                tileImage = grass
+                centered_x1 = grid_surface.get_rect().centerx + iso_x
+                centered_y1 = grid_surface.get_rect().centery / 2 + iso_y
+                grid_surface.blit(tileImage, (centered_x1, centered_y1))
 
-                elif mygrid.dict_bob.get((n,m)) is not None:
-                    for bob in mygrid.dict_bob[(n,m)]:
-                        if bob.energy <= 0.25*mygrid.bob_energy_spawn:
-                            bobsprite = changecolor(bobsprite, "red")
-                        elif bob.energy <= 0.50*mygrid.bob_energy_spawn:
-                            bobsprite = changecolor(bobsprite, "yellow")
-                        else :
-                            bobsprite = changecolor(bobsprite, "base")
+            elif mygrid.dict_bob.get((n, m)) is not None:
+                # Dessiner les bobs locaux
+                for bob in mygrid.dict_bob[(n, m)]:
+                    if bob.energy <= 0.25 * mygrid.bob_energy_spawn:
+                        bobsprite = changecolor(bobsprite, "red")
+                    elif bob.energy <= 0.50 * mygrid.bob_energy_spawn:
+                        bobsprite = changecolor(bobsprite, "yellow")
+                    else:
+                        bobsprite = changecolor(bobsprite, "base")
                     tileImage = bobsprite
                     item_surface.blit(tileImage, (centered_x, centered_y))
 
-                elif mygrid.dict_food.get((n,m)) is not None:
-                    tileImage = food
-                    item_surface.blit(tileImage, (centered_x, centered_y))
-                
+                    # Dessiner le nom "Local" au-dessus
+                    text_surface = font.render(globals.player_name, True, (255, 255, 255))  # Texte blanc
+                    text_rect = text_surface.get_rect(center=(centered_x + bobsprite.get_width() // 2, centered_y - 10))
+                    item_surface.blit(text_surface, text_rect)
+
+            elif mygrid.dict_food.get((n, m)) is not None:
+                # Dessiner la nourriture
+                tileImage = food
+                item_surface.blit(tileImage, (centered_x, centered_y))
+    
+    # Dessiner les bobs distants
+    for bob in bobs_distant:
+        n, m = bob['x'], bob['y']
+        cart_x = n * TILEWIDTH_HALF
+        cart_y = m * TILEHEIGHT_HALF
+        iso_x = (cart_x - cart_y)
+        iso_y = (cart_x + cart_y) / 2
+        centered_x = grid_surface.get_rect().centerx + iso_x
+        centered_y = grid_surface.get_rect().centery / 2 + iso_y
+
+        bobsprite = changecolor(bobsprite, "yellow")
+        tileImage = bobsprite
+        item_surface.blit(tileImage, (centered_x, centered_y))
+
+        # Dessiner le nom du joueur au-dessus
+        font = pygame.font.Font(None, 24)
+        text_surface = font.render(player_name, True, (255, 255, 255))  # Texte blanc
+        text_rect = text_surface.get_rect(center=(centered_x + bobsprite.get_width() // 2, centered_y - 10))
+        item_surface.blit(text_surface, text_rect)
+            
             
 
 def draw_visible_grid(grid_offset_x, grid_offset_y): 
