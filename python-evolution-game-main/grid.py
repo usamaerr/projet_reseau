@@ -5,7 +5,7 @@ from datetime import datetime
 import globals
 from bob import Bob
 from paquet import Paquet
-import py_to_c as py_c
+import py_to_c_threading as py_c
 
 
 class Grid:
