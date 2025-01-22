@@ -1,6 +1,6 @@
 import globals
 from bob import Bob
-import c_to_py as c_py
+import c_to_py_threading as c_py
 import os
 
 class Paquet:
@@ -45,58 +45,59 @@ class Paquet:
     @staticmethod
     def lire_distant_data(port_receive):
         """
-        Fonction pour lire les données reçues par UDP et les convertir en listes de bobs et de nourritures.
-        :return: (liste de bobs, nom du joueur)
+        Au lieu d'appeler receive_message() (bloquant),
+        on lit la queue c_to_py_threading.received_messages.
+        Si la queue est vide => on renvoie des listes vides, rien à afficher.
         """
         bobs = []
         foods = []
         player_name = "Unknown"
-        section = None
-        try:
-            # Recevoir le message via UDP
-            
-            data = c_py.receive_message(port=port_receive)
-            lignes = data.split('\n')  # Diviser les données en lignes
 
-            for ligne in lignes:
-                ligne = ligne.strip()
-                # Identifier les sections du message
-                if ligne == "BOBS":
-                    section = "BOBS"
-                elif ligne == "FOOD":
-                    section = "FOOD"
-                elif ligne == "PLAYER":
-                    section = "PLAYER"
-                elif section == "BOBS" and ligne:
-                    # Extraire les données des bobs
-                    parts = ligne.split(',')
-                    position = parts[0].split('_')
-                    bobs.append({
-                        'x': int(position[0]),
-                        'y': int(position[1]),
-                        'id_bob': parts[1],
-                        'energy': float(parts[2]),
-                        'id_player': parts[3],
-                        'mass': float(parts[4]),
-                        'speed': float(parts[5]),
-                        'speed_buffer': float(parts[6]),
-                        'maman': int(parts[7]),
-                        'fils': eval(parts[8])  # Convertir la liste des fils
-                    })
-                elif section == "FOOD" and ligne:
-                    # Extraire les données de la nourriture
-                    parts = ligne.split(',')
-                    position = parts[0].split('_')
-                    foods.append({
-                        'x': int(position[0]),
-                        'y': int(position[1]),
-                        'energy': int(parts[1])
-                    })
-                elif section == "PLAYER" and ligne:
-                    # Extraire le nom du joueur
-                    player_name = ligne
-        except Exception as e:
-            print(f"Erreur lors de la réception des données : {e}")
+        # On vérifie si on a reçu quelque chose dans la queue
+        if c_py.received_messages.empty():
+            # Aucune donnée => on renvoie bobs vides
+            return bobs, player_name
+
+        # Si on a des données, on prend le plus ancien message reçu
+        data = c_py.received_messages.get_nowait()  # non bloquant
+        if not data:
+            return bobs, player_name
+
+        # On parse la chaîne
+        section = None
+        lignes = data.split('\n')
+        for ligne in lignes:
+            ligne = ligne.strip()
+            if ligne == "BOBS":
+                section = "BOBS"
+            elif ligne == "FOOD":
+                section = "FOOD"
+            elif ligne == "PLAYER":
+                section = "PLAYER"
+            elif section == "BOBS" and ligne:
+                parts = ligne.split(',')
+                position = parts[0].split('_')
+                bobs.append({
+                    'x': int(position[0]),
+                    'y': int(position[1]),
+                    'id_bob': parts[1],
+                    'energy': float(parts[2]),
+                    'id_player': parts[3],
+                    'mass': float(parts[4]),
+                    'speed': float(parts[5]),
+                    'speed_buffer': float(parts[6]),
+                    'maman': int(parts[7]),
+                    'fils': eval(parts[8])  # attention : évaluer la liste en clair
+                })
+            elif section == "FOOD" and ligne:
+                parts = ligne.split(',')
+                position = parts[0].split('_')
+                foods.append({
+                    'x': int(position[0]),
+                    'y': int(position[1]),
+                    'energy': int(parts[1])
+                })
+            elif section == "PLAYER" and ligne:
+                player_name = ligne
 
         return bobs, player_name
-
