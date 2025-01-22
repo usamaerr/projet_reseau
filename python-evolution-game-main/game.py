@@ -1,7 +1,7 @@
 import pygame
 import sys
 from pygame.locals import *
-
+import c_to_py_threading as c_py
 import globals
 
 def start_game(start_from_loading_flag = 0):
@@ -10,21 +10,26 @@ def start_game(start_from_loading_flag = 0):
     import affichage_2_5D_isometric as aff_iso
     import sauvegarde as sauv
     
+    # Initialisation pygame, surfaces, etc. déjà présentes dans votre code
     tick_graphic = 0
-    print(aff_iso.configuration.config_affichage.nbbob)
-    if start_from_loading_flag == 0 : #pour éviter que le jeu ré-initialise la grid après l'avoir load from file
-        aff_iso.configuration.config_grid.init_grid() 
+
+    # On demande les ports en console (comme dans votre code)
+    port_receiver = int(input("port receiver"))  
+    globals.port_send = int(input("port sender"))
+
+    # *** NOUVEAU *** on lance le thread d'écoute sur 'port_receiver'
+    c_py.start_network_listener(port_receiver)
+    print(f"Thread d'écoute réseau démarré sur le port {port_receiver}.")
+
+    # Initialisations de la grille, etc.
+    if start_from_loading_flag == 0 :
+        aff_iso.configuration.config_grid.init_grid()
         print("load with initialisation")
     aff_iso.redefinition_surface()
     aff_iso.set_theme(aff_iso.configuration.config_affichage.themeiso)
 
-    # map_data = create_map(grid) 
-    # draw_initial_grid(map_data)
-    port_receiver = int(input("port receiver"))
-    globals.port_send = int(input("port sender"))
-
     aff_iso.draw_initial_grid_v2(aff_iso.configuration.config_grid)
-    # map_data = update_map(grid)   
+
     run = True
     while run:
         sauv.save = aff_iso.configuration
