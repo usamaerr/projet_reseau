@@ -231,16 +231,10 @@ class Grid:
             self.delete_bob(x, y, id)
             if (new_x, new_y) in self.dict_bob:
                 self.dict_bob[(new_x, new_y)].append(random_bob)
-                Paquet.export_to_ascii("distant_"+globals.player_name + '.txt', self.dict_bob, self.dict_food)
-                py_c.send_ascii_file(filename="distant_"+globals.player_name + '.txt',target_ip="127.0.0.1",target_port=globals.port_send)
             else:
                 self.dict_bob[(new_x, new_y)] = [random_bob]
-                Paquet.export_to_ascii("distant_"+globals.player_name + '.txt', self.dict_bob, self.dict_food)
-                py_c.send_ascii_file(filename="distant_"+globals.player_name + '.txt',target_ip="127.0.0.1",target_port=globals.port_send)
         else:
-            random_bob.set_energy(random_bob.get_energy()-0.5) # ajout de cette ligne pour enlever au bob 0.5 d'energie quand ils bougent pas
-            Paquet.export_to_ascii("distant_"+globals.player_name + '.txt', self.dict_bob, self.dict_food) 
-            py_c.send_ascii_file(filename="distant_"+globals.player_name + '.txt',target_ip="127.0.0.1",target_port=globals.port_send)
+            random_bob.set_energy(random_bob.get_energy()-0.5) # ajout de cette ligne pour enlever au bob 0.5 d'energie quand ils bougent pa
 
         if len(self.dict_bob[(x,y)]) == 0:
             del(self.dict_bob[(x,y)])
@@ -267,7 +261,10 @@ class Grid:
 #---------------------------------------------------------------------------------------------------------------------
             else: 
                 self.move_random_bob_speed(x, y)
-        
+                # Après la boucle qui gère les actions des bobs
+        Paquet.export_to_ascii("distant_"+globals.player_name + '.txt', self.dict_bob, self.dict_food)
+        py_c.send_ascii_file(filename="distant_"+globals.player_name + '.txt', target_ip="127.0.0.1", target_port=globals.port_send)
+                
         if self.tick == 100:
             self.new_day_food()
             self.day += 1
