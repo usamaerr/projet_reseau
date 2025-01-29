@@ -2,6 +2,10 @@ import globals
 from bob import Bob
 import c_to_py_threading as c_py
 import os
+import ast 
+bobs_distant_cache = []
+player_name_cache = "Unknown"
+
 
 class Paquet:
 
@@ -42,62 +46,87 @@ class Paquet:
 
         print(f"Les données ont été exportées avec succès dans le fichier {file_name}.")
 
-    @staticmethod
     def lire_distant_data(port_receive):
         """
         Au lieu d'appeler receive_message() (bloquant),
         on lit la queue c_to_py_threading.received_messages.
-        Si la queue est vide => on renvoie des listes vides, rien à afficher.
+        Si la queue est vide => on renvoie les derniers bobs connus.
         """
+        global bobs_distant_cache, player_name_cache
         bobs = []
-        foods = []
+        player_name = player_name_cache
+
+        # Vérifier si on a reçu un message dans la queue
+        if not c_py.received_messages.empty():
+            # Récupérer les nouvelles données
+            data = c_py.received_messages.get_nowait()  # non bloquant
+            if data:
+                bobs, player_name = Paquet.traiter_donnees_reçues(data)
+
+                # Si des bobs ont été reçus, on met à jour le cache
+                if bobs:
+                    bobs_distant_cache = bobs
+                if player_name != "Unknown":  # On garde le dernier nom valide
+                    player_name_cache = player_name
+            else:
+                return bobs_distant_cache, player_name  # Aucune donnée reçue, on renvoie le cache
+        else:
+            return bobs_distant_cache, player_name  # Queue vide, on renvoie les derniers bobs connus
+
+        return bobs, player_name
+
+    def traiter_donnees_reçues(data):
+        """ Fonction qui parse les données reçues. """
+        bobs = []
         player_name = "Unknown"
-
-        # On vérifie si on a reçu quelque chose dans la queue
-        if c_py.received_messages.empty():
-            # Aucune donnée => on renvoie bobs vides
-            return bobs, player_name
-
-        # Si on a des données, on prend le plus ancien message reçu
-        data = c_py.received_messages.get_nowait()  # non bloquant
-        if not data:
-            return bobs, player_name
-
-        # On parse la chaîne
         section = None
         lignes = data.split('\n')
+
         for ligne in lignes:
             ligne = ligne.strip()
             if ligne == "BOBS":
                 section = "BOBS"
-            elif ligne == "FOOD":
-                section = "FOOD"
             elif ligne == "PLAYER":
                 section = "PLAYER"
             elif section == "BOBS" and ligne:
                 parts = ligne.split(',')
-                position = parts[0].split('_')
-                bobs.append({
-                    'x': int(position[0]),
-                    'y': int(position[1]),
-                    'id_bob': parts[1],
-                    'energy': float(parts[2]),
-                    'id_player': parts[3],
-                    'mass': float(parts[4]),
-                    'speed': float(parts[5]),
-                    'speed_buffer': float(parts[6]),
-                    'maman': int(parts[7]),
-                    'fils': eval(parts[8])  # attention : évaluer la liste en clair
-                })
-            elif section == "FOOD" and ligne:
-                parts = ligne.split(',')
-                position = parts[0].split('_')
-                foods.append({
-                    'x': int(position[0]),
-                    'y': int(position[1]),
-                    'energy': int(parts[1])
-                })
+                try:
+                    position = parts[0].split('_')
+                    x = int(position[0])
+                    y = int(position[1])
+                    id_bob = parts[1]
+                    energy = float(parts[2])
+                    id_player = parts[3]
+                    mass = float(parts[4])
+                    speed = float(parts[5])
+                    speed_buffer = float(parts[6])
+                    maman = int(parts[7])
+                    try:
+                        # Vérifier que la chaîne est bien une liste et qu'elle est correctement fermée
+                        if parts[8].startswith("[") and parts[8].endswith("]"):
+                            fils = ast.literal_eval(parts[8])  # Convertir en liste Python
+                            if not isinstance(fils, list):  # Vérifier que c'est bien une liste
+                                fils = []
+                        else:
+                            fils = []  # Si ce n'est pas une liste correctement fermée, on ignore
+                    except (SyntaxError, ValueError):
+                        fils = []  # Si la liste est mal formée, on la vide
+
+
+                    bobs.append({
+                        'x': x, 'y': y, 'id_bob': id_bob, 'energy': energy,
+                        'id_player': id_player, 'mass': mass, 'speed': speed,
+                        'speed_buffer': speed_buffer, 'maman': maman, 'fils': fils
+                    })
+                except (ValueError, IndexError):
+                    print(f"Erreur parsing BOBS : {ligne}")
+
             elif section == "PLAYER" and ligne:
                 player_name = ligne
+                print(f"[DEBUG] Nom du joueur distant reçu : {player_name}")  # Debug pour voir les noms reçus
+
 
         return bobs, player_name
+
+
+    

@@ -48,4 +48,22 @@ def send_file_thread(filename, target_ip, target_port):
 
 #     # Lancer l'envoi dans un thread
 #     send_thread = send_file_thread(filename, target_ip, target_port)
-#     send_thread.join()  # Attendre que le thread se termine
+#     send_thread.join()  # Attendre que le thread se termin
+import time
+
+def send_data_periodically(filename, target_ip, target_port, interval=0.5):
+    """
+    Envoie périodiquement le fichier ASCII contenant les bobs et la nourriture.
+    """
+    while True:
+        send_ascii_file(filename, target_ip, target_port)
+        time.sleep(interval)  # Pause avant le prochain envoi
+
+def start_periodic_sender(filename, target_ip, target_port):
+    """
+    Démarre le thread pour envoyer les données en continu.
+    """
+    sender_thread = threading.Thread(target=send_data_periodically, args=(filename, target_ip, target_port))
+    sender_thread.daemon = True  # Le thread s'arrêtera avec le programme principal
+    sender_thread.start()
+

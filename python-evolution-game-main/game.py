@@ -3,6 +3,9 @@ import sys
 from pygame.locals import *
 import c_to_py_threading as c_py
 import globals
+import py_to_c_threading as py_c
+py_c.start_periodic_sender("distant.txt", "127.0.0.1", globals.port_send)
+
 
 def start_game(start_from_loading_flag = 0):
 
