@@ -1,13 +1,84 @@
-#Projet Réseau 
+Projet Réseau
+
 Description du Projet
 
+Ce projet permet une communication réseau entre deux joueurs en utilisant un programme écrit en C et une interface graphique en Python.
 
+Instructions pour Lancer la Première Version entre Deux Joueurs
 
-  Formuler l'evenement qui contient les infos sur chaque bob et nourriture
+1. Préparation des programmes C
 
-  Communication Réseau Python -> C Implémenter une connexion réseau permettant au programme Python d'envoyer des données vers une application écrite en C.
+Ouvrez deux terminaux pour exécuter deux instances du programme C.
 
-  Communication Réseau C -> C Configurer une communication réseau entre deux applications C pour l'échange de données.
+Dans chaque terminal, compilez le fichier main.c avec la commande suivante :
 
-  Communication Réseau C -> Python Permettre à une application écrite en C d'envoyer des données à une application Python.
+  gcc main.c -o main
+
+Lancez le programme dans chaque terminal :
+
+Terminal 1 :
+
+  ./main
+
+Ports utilisés :
+
+  Réception des messages Python : 5001
+
+  Envoi des messages vers Python : 5000
+
+  Réception des messages du programme C : 5002
+
+  Envoi des messages au programme C : 5003
+
+Terminal 2 :
+
+  ./main
+
+Ports utilisés :
+
+  Réception des messages Python : 5004
+
+  Envoi des messages vers Python : 5005
+
+  Réception des messages du programme C : 5003
+
+  Envoi des messages au programme C : 5002
+
+2. Lancement des programmes Python
+
+Ouvrez deux nouveaux terminaux pour exécuter les programmes Python avec une interface graphique.
+
+Dans chaque terminal, exécutez le programme Python :
+
+Terminal 3 :
+
+  python3 main.py
+
+Après le lancement :
+
+  Cliquez sur Play dans l'interface graphique.
+
+  Entrez un nom de joueur unique (différent de celui du second joueur).
+
+Revenez au terminal et configurez les ports :
+
+  Port de réception : 5000
+
+  Port d'envoi : 5001
+
+Terminal 4 :
+
+  python3 main.py
+
+Après le lancement :
+
+  Cliquez sur Play dans l'interface graphique.
+
+  Entrez un nom de joueur unique (différent de celui du premier joueur).
+
+Revenez au terminal et configurez les ports :
+
+  Port de réception : 5005
+
+  Port d'envoi : 5004
 

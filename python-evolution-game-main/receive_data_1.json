@@ -1,0 +1,125 @@
+{
+    "bobs": [
+        {
+            "x": 1,
+            "y": 17,
+            "id_bob": "1",
+            "energy": 87.0,
+            "id_player": "20001-01-01 00:00:0038",
+            "mass": 1.0,
+            "speed": 1.0,
+            "speed_buffer": 0.0,
+            "maman": 0,
+            "fils": []
+        },
+        {
+            "x": 16,
+            "y": 11,
+            "id_bob": "8",
+            "energy": 187.0,
+            "id_player": "20001-01-01 00:00:0038",
+            "mass": 1.0,
+            "speed": 1.0,
+            "speed_buffer": 0.0,
+            "maman": 0,
+            "fils": []
+        },
+        {
+            "x": 15,
+            "y": 11,
+            "id_bob": "9",
+            "energy": 186.0,
+            "id_player": "20001-01-01 00:00:0038",
+            "mass": 1.0,
+            "speed": 1.0,
+            "speed_buffer": 0.0,
+            "maman": 0,
+            "fils": []
+        },
+        {
+            "x": 3,
+            "y": 18,
+            "id_bob": "4",
+            "energy": 85.5,
+            "id_player": "20001-01-01 00:00:0038",
+            "mass": 1.0,
+            "speed": 1.0,
+            "speed_buffer": 0.0,
+            "maman": 0,
+            "fils": []
+        },
+        {
+            "x": 13,
+            "y": 16,
+            "id_bob": "2",
+            "energy": 85.0,
+            "id_player": "20001-01-01 00:00:0038",
+            "mass": 1.0,
+            "speed": 1.0,
+            "speed_buffer": 0.0,
+            "maman": 0,
+            "fils": []
+        },
+        {
+            "x": 11,
+            "y": 6,
+            "id_bob": "3",
+            "energy": 85.0,
+            "id_player": "20001-01-01 00:00:0038",
+            "mass": 1.0,
+            "speed": 1.0,
+            "speed_buffer": 0.0,
+            "maman": 0,
+            "fils": []
+        },
+        {
+            "x": 5,
+            "y": 11,
+            "id_bob": "5",
+            "energy": 85.0,
+            "id_player": "20001-01-01 00:00:0038",
+            "mass": 1.0,
+            "speed": 1.0,
+            "speed_buffer": 0.0,
+            "maman": 0,
+            "fils": []
+        },
+        {
+            "x": 3,
+            "y": 8,
+            "id_bob": "6",
+            "energy": 85.0,
+            "id_player": "20001-01-01 00:00:0038",
+            "mass": 1.0,
+            "speed": 1.0,
+            "speed_buffer": 0.0,
+            "maman": 0,
+            "fils": []
+        },
+        {
+            "x": 16,
+            "y": 6,
+            "id_bob": "7",
+            "energy": 85.0,
+            "id_player": "20001-01-01 00:00:0038",
+            "mass": 1.0,
+            "speed": 1.0,
+            "speed_buffer": 0.0,
+            "maman": 0,
+            "fils": []
+        },
+        {
+            "x": 17,
+            "y": 19,
+            "id_bob": "10",
+            "energy": 85.0,
+            "id_player": "20001-01-01 00:00:0038",
+            "mass": 1.0,
+            "speed": 1.0,
+            "speed_buffer": 0.0,
+            "maman": 0,
+            "fils": []
+        }
+    ],
+    "player_name": "2"
+}
